@@ -30,7 +30,7 @@ def _cycle_mpi(p:np.ndarray, q:np.ndarray, max_depth = 2):
     '''
     G = _generate_graph(p, q)
     PQT = p @ q.T
-    mci_list = []
+    mci = []
     for i in nx.simple_cycles(G, max_depth):
         _sum_up = 0
         _sum_low = 0
@@ -40,9 +40,10 @@ def _cycle_mpi(p:np.ndarray, q:np.ndarray, max_depth = 2):
             _sum_up += PQT[i[k], i[k]] - PQT[i[k], i[v]]
             _sum_low += PQT[i[k], i[k]]
         if _sum_up > 0:
-            mci_list.append(_sum_up / _sum_low)
+            mci.append(_sum_up / _sum_low)
 
-    return np.mean(mci_list) if len(mci_list) > 0 else 0
+    e = np.mean(mci) if len(mci) > 0 else 0
+    return e
 
 def _matrix_mpi(p:np.ndarray, q:np.ndarray):
     '''
@@ -55,7 +56,7 @@ def _matrix_mpi(p:np.ndarray, q:np.ndarray):
     ajM = np.zeros((N, N))
     for i in range(N):
         for j in range(N):
-            if i!= j and PQT[i, i] > PQT[i, j]:
+            if i != j and PQT[i, i] > PQT[i, j]:
                 ajM[i, j] = 1
     cycleM = ajM * ajM.T
     mpi = np.zeros(int(np.sum(cycleM) / 2))
@@ -63,7 +64,7 @@ def _matrix_mpi(p:np.ndarray, q:np.ndarray):
     for i in range(N):
         for j in range(N):
             if cycleM[i, j] == 1 and i > j:
-                mpi[t] = (PQT[i, i] - PQT[i, j] + PQT[j, j] - PQT[j, i]) / (PQT[i, i] + PQT[j, j])
+                mpi[t] = 1 - (PQT[i, j] + PQT[j, i]) / (PQT[i, i] + PQT[j, j])
                 t += 1
 
     mpi = mpi[mpi > 0]
