@@ -1,0 +1,13 @@
+[build-system]
+name = "revpref"
+version = "1.0.0"
+authors = [
+    {"name" = "Yi Xiang", "email" = "xiangy.i@outlook.com"}
+]
+description = "Python Tools for Computational Revealed Preference Analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+requires = ["numpy", "networkx", "pulp", "scipy", "matplotlib"]
+classifiers = [
+    "Programming Language :: Python :: 3"
+]
