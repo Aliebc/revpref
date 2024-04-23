@@ -16,7 +16,7 @@ CCEI (Critical Cost Efficiency index, *Afrait 1972*)
 
 * CCEI (also known as the Afriat efficiency index). The CCEI is defined as the maximal value of the efficiency level e at which the data set is consistent with GARP.
 * Generally, A is directly prefered to B when $p^Aq^A>p^Aq^B$, and CCEI is the suprema of e under constraint $e p^Aq^A>p^Aq^B$ to satisfy GARP .
-* We provide three method to compute CCEI. (Warshall, MTZ and dichotomy)
+* We provide three method to compute CCEI. (Warshall, MTZ and bisection)
 
 HMI (Houtman and Maks index, *Houtman and Maks, 1985*)
 
@@ -67,7 +67,7 @@ numpy, scipy, networkx and pulp are needed.
 Below we provide some simple examples to illustrate the main class in our package.
 
 ```python
-import revpref as rp
+bisectionimport revpref as rp
 import numpy as np
 
 p = np.array(
@@ -101,7 +101,7 @@ print(pref.check_garp()) # Check if satisfy GARP
 
 print("---CCEI---")
 print(pref.ccei()) # Compute the CCEI
-print(pref.ccei(method='dichotomy', tol = 1e-10))
+print(pref.ccei(method='bisection', tol = 1e-10))
 print(pref.ccei(method='mtz')) # Use other methods
 
 print("---AVI---")
@@ -145,11 +145,11 @@ False
 
 ## Reference
 
-[1]  Afriat, Sidney N."Efficiency estimation of production functions."International economic review (1972): 568-598.
+[1]  Afriat, Sidney N."Efficiency estimation of production functions."*International economic review* (1972): 568-598.
 
-[2]  Houtman, Martijn, and Julian Maks. "Determining all maximal data subsets consistent with revealed preference." Kwantitatieve methoden 19, no. 1 (1985): 89-104.
+[2]  Houtman, Martijn, and Julian Maks. "Determining all maximal data subsets consistent with revealed preference." *Kwantitatieve methoden* 19, no. 1 (1985): 89-104.
 
-[3]  Varian, Hal R. "Goodness-of-fit in optimizing models." Journal of Econometrics 46, no. 1-2 (1990): 125-140. 
+[3]  Varian, Hal R. "Goodness-of-fit in optimizing models." *Journal of Econometrics* 46, no. 1-2 (1990): 125-140. 
 
 [4]  Echenique, Federico, Sangmok Lee, and Matthew Shum. "The money pump as a measure of revealed preference violations." Journal of Political Economy 119, no. 6 (2011): 1201-1223.
 

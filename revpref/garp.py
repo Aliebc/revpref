@@ -1,4 +1,4 @@
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Yi Xiang'
 
 import networkx as nx
@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from ._utils import generate_graph
 
-from .ccei import _warshall_ccei, _dichotomy_ccei, _mtz_ccei
+from .ccei import _warshall_ccei, _bisection_ccei, _mtz_ccei
 from .mpi import _cycle_mpi, _matrix_mpi
 from .mci import _mtz_mci, _optimize_mci, _milp_mci
 from .hmi import _mtz_hmi, _gross_hmi
@@ -72,17 +72,17 @@ class RevealedPreference:
         
         Our package provides three methods to calculate CCEI:
         1. Warshall Algorithm (default, suggested)
-        2. Dichotomy
+        2. Bisection
         3. MTZ
         '''
         match method:
             case 'warshall':
                 return _warshall_ccei(self.p, self.q)
-            case 'dichotomy':
-                return _dichotomy_ccei(self.p, self.q, tol)
+            case 'bisection':
+                return _bisection_ccei(self.p, self.q, tol)
             case 'mtz':
                 return _mtz_ccei(self.p, self.q, lp_solver)
-        raise ValueError("method should be 'warshall' or 'dichotomy' or 'mtz'")
+        raise ValueError("method should be 'warshall' or 'bisection' or 'mtz'")
     
     def avi(self, 
         method : Literal['mtz'] = 'mtz',

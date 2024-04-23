@@ -43,9 +43,9 @@ def _warshall_ccei(p: np.ndarray, q: np.ndarray):
     
     return 1 - max(np.diag(Es))
 
-def _dichotomy_ccei(p: np.ndarray, q: np.ndarray, tol = 1e-6):
+def _bisection_ccei(p: np.ndarray, q: np.ndarray, tol = 1e-6):
     '''
-    Dichotomy algorithm for CCEI
+    bisection algorithm for CCEI
     
     This method is the most standard way to calculate CCEI.
     '''
@@ -109,7 +109,7 @@ def _mtz_ccei(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
 
 ###########################
 ccei_warshall = _warshall_ccei
-ccei_dichotomy = _dichotomy_ccei
+ccei_bisection = _bisection_ccei
 ccei_mtz = _mtz_ccei
 
-__all__ = ['ccei_warshall', 'ccei_dichotomy', 'ccei_mtz']
+__all__ = ['ccei_warshall', 'ccei_bisection', 'ccei_mtz']
