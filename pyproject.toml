@@ -1,4 +1,4 @@
-[build-system]
+[project]
 name = "revpref"
 version = "1.0.0"
 authors = [
@@ -7,7 +7,14 @@ authors = [
 description = "Python Tools for Computational Revealed Preference Analysis"
 readme = "README.md"
 requires-python = ">=3.10"
-requires = ["numpy", "networkx", "pulp", "scipy", "matplotlib"]
 classifiers = [
     "Programming Language :: Python :: 3"
 ]
+dependencies = ["numpy", "networkx", "pulp", "scipy", "matplotlib"]
+
+[project.urls]
+"Homepage" = "https://github.com/Aliebc/revpref"
+"Bug Tracker" = "https://github.com/Aliebc/revpref"
+
+[build-system]
+requires = ["setuptools", "numpy", "networkx", "pulp", "scipy", "matplotlib"]
