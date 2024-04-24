@@ -11,7 +11,7 @@ from ._utils import generate_graph
 from .ccei import _warshall_ccei, _bisection_ccei, _mtz_ccei
 from .mpi import _cycle_mpi, _matrix_mpi
 from .mci import _mtz_mci, _optimize_mci, _milp_mci
-from .hmi import _mtz_hmi, _gross_hmi
+from .hmi import _mtz_hmi, _gross_hmi, _optimize_hmi
 from .avi import _mtz_avi
 
 def _generate_graph(p, q, e = 1):
@@ -130,7 +130,7 @@ class RevealedPreference:
         raise ValueError("method should be 'optimize', 'milp' or 'mtz'")
     
     def hmi(self,
-        method : Literal['mtz', 'gross'] = 'mtz',
+        method : Literal['mtz', 'gross', 'optimize'] = 'mtz',
         lp_solver : Literal[
             'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
             'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
@@ -141,7 +141,9 @@ class RevealedPreference:
                 return _mtz_hmi(self.p, self.q, lp_solver)
             case 'gross':
                 return _gross_hmi(self.p, self.q)
-        raise ValueError("method should be 'mtz' or 'gross'")
+            case 'optimize':
+                return _optimize_hmi(self.p, self.q)
+        raise ValueError("method should be 'mtz' or 'gross' or 'optimize'")
     
     def draw(self):
         G = self.G

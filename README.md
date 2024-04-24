@@ -16,29 +16,28 @@ We implement various method to compute following indices:
 
 * CCEI (also known as the Afriat efficiency index). The CCEI is defined as the maximal value of the efficiency level e at which the data set is consistent with GARP.
 * Generally, A is directly prefered to B when $p^Aq^A>p^Aq^B$, and CCEI is the suprema of e under constraint $e p^Aq^A>p^Aq^B$ to satisfy GARP .
-* We provide three method to compute CCEI. (Warshall, MTZ and bisection)
+* We provide three method to compute CCEI. (**Warshall**, MTZ and bisection)
 
 ### HMI (Houtman and Maks index, *Houtman and Maks, 1985*)
 
 * The Houtman-Maks index gives the relative size of the largest subset of observations that is still consistent with GARP.
 * For instance, if we delete the tenth choice from a 10-choice dataset and find it satisfy GARP, then the HMI is (10 - 1)/10 = 0.9
-* We provide two methods to compute CCEI. (GrossKaiser, MTZ)
+* We provide two methods to compute CCEI. (GrossKaiser, **MTZ**)
 
 ### AVI (Average Afrait index, *Varian 1990*)
 
 * AVI thinks that every choice has its own e. AVI is the maxium of the mean of e-vector.
-* We provide only one method to compute AVI. (MTZ)
+* We provide only one method to compute AVI. (**MTZ**)
 
 ### MPI (Money Pump index, *Echenique et al., 2011*)
 
 * The MPI is the amount of money one can extract from a consumer who violates the axioms.
-* We provide a general algorithm to compute MPI under finite max length of cycles.
-* We also provide a faster matrix algorithm for max length = 2.
+* We provide a general algorithm to compute MPI under finite max length of cycles, and we also provide a faster matrix algorithm for max length = 2. (Cycle, **Matrix**)
 
 ### MCI (Minimal Cost index, *Dean and Martin, 2016*)
 
 * MCI is defined as the minimum cost of removing all cycles from the graph.
-* We provide two methods to compute MCI. (Optimize, MTZ)
+* We provide two methods to compute MCI. (Optimize, **MTZ**)
 
 ## Installation
 
@@ -60,7 +59,7 @@ python3 setup.py install
 
 Python >= 3.10
 
-numpy, scipy, networkx and pulp are needed.
+numpy, scipy, networkx and pulp are required.
 
 ## Example
 
@@ -143,13 +142,13 @@ False
 0.9
 ```
 
-## Reference
+## References
 
-[1]  Afriat, Sidney N."Efficiency estimation of production functions."*International economic review* (1972): 568-598.
+[1]  Afriat, Sidney N."Efficiency estimation of production functions." *International economic review* (1972): 568-598.
 
 [2]  Houtman, Martijn, and Julian Maks. "Determining all maximal data subsets consistent with revealed preference." *Kwantitatieve methoden* 19, no. 1 (1985): 89-104.
 
-[3]  Varian, Hal R. "Goodness-of-fit in optimizing models." *Journal of Econometrics* 46, no. 1-2 (1990): 125-140. 
+[3]  Varian, Hal R. "Goodness-of-fit in optimizing models." *Journal of Econometrics* 46, no. 1-2 (1990): 125-140.
 
 [4]  Echenique, Federico, Sangmok Lee, and Matthew Shum. "The money pump as a measure of revealed preference violations." *Journal of Political Economy* 119, no. 6 (2011): 1201-1223.
 

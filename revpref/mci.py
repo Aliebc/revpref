@@ -45,7 +45,7 @@ def _optimize_mci(p:np.ndarray, q:np.ndarray):
         lc = len(cycles)
         le = len(G.edges())
         lp_weight = np.zeros(le)
-        lp_matrix = np.zeros((lc, le), dtype = np.int8)
+        lp_matrix = np.zeros((lc, le), dtype = np.int32)
         P_Edges = np.zeros((le, 2))
         Edges = list(G.edges().data('weight'))
         _load_matrix(cycles, lp_matrix, Edges)

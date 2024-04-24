@@ -15,6 +15,9 @@ Computing the Houtman-Maks index is an NP-hard problem.
 
 import numpy as np
 import pulp as pl
+import networkx as nx
+from scipy.optimize import milp, LinearConstraint, Bounds
+
 from ._utils import (
     generate_graph as _generate_graph, 
     has_cycle as _has_cycle
@@ -149,25 +152,19 @@ def _gross_hmi(p:np.ndarray, q:np.ndarray):
     
     T=np.size(p,0)
     ListOfIndices = np.arange(0,T)
-    BinMat=np.ones((T,1))
     r=0
     
     while r==0:
-        #print(ListOfIndices)
         pTemp = p[ListOfIndices,:]
         qTemp = q[ListOfIndices,:]
 
         edgesTemp = AdjMat(pTemp,qTemp)
-        #print(edgesTemp)
         remove = NonAdjRem(edgesTemp)
         
         r =(len(remove)==0)
-        
 
         if r==0:
             ListOfIndices=np.delete(ListOfIndices,remove)
-        #print('r: ',r)
-        #print(r == 0)
 
     r=0
 
@@ -176,9 +173,7 @@ def _gross_hmi(p:np.ndarray, q:np.ndarray):
         qTemp = q[ListOfIndices,:]
 
         edgesTemp = AdjMat(pTemp,qTemp)
-        #print(edgesTemp)
         remove = AdjRem(edgesTemp)
-        #print(remove)
         r =(len(remove)==0)
 
         if r==0:
@@ -186,9 +181,45 @@ def _gross_hmi(p:np.ndarray, q:np.ndarray):
     
     return len(ListOfIndices)/T
 
+def _optimize_hmi(p:np.ndarray, q:np.ndarray):
+    G = _generate_graph(p, q)
+    N = p.shape[0]
+    max_depth = 3
+    min_remove = 0 
+    if not _has_cycle(G):
+        return 1
+    while _has_cycle(G):
+        cycles = list(nx.simple_cycles(G, max_depth))
+        lc = len(cycles)
+        lp_remove = np.ones(N)
+        lp_matrix = np.zeros((lc, N), dtype = np.int8)
+        
+        lp_lower = np.ones(lc, dtype = np.int8)
+        
+        lp_bounds = Bounds(0, 1)
+        for c, cycle in enumerate(cycles):
+            for i in range(N):
+                lp_matrix[c][i] = 1 if i in cycle else 0
+        lp_cons = LinearConstraint(lp_matrix, lp_lower)
+        lp_hmi = milp(lp_remove, constraints = lp_cons, bounds = lp_bounds)
+        if lp_hmi.success:
+            g_check = G.copy()
+            for n in range(N):
+                if lp_hmi.x[n] == 1:
+                    g_check.remove_node(n)
+            if _has_cycle(g_check):
+                max_depth += 1
+            else:
+                min_remove = lp_hmi.fun
+                return 1 - min_remove / N
+        else:
+            raise RuntimeError("MILP Failed!")
+        
+
 ######################
 
 hmi_mtz = _mtz_hmi
 hmi_gross = _gross_hmi
+hmi_optimize = _optimize_hmi
 
 __all__ = ['hmi_mtz', 'hmi_gross']
