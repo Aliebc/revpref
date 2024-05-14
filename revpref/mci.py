@@ -78,8 +78,11 @@ def _mtz_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
     PQT = p @ q.T
     
     EXP = np.diag(PQT).reshape(T, 1) @ np.ones((1, T))
-    Cs = np.clip(PQT - EXP, 0, None)
-    Cmin = np.min(Cs[np.nonzero(Cs)])
+    
+    Cs = np.clip(PQT - EXP, 1e-6, None)
+    Csz = Cs[np.nonzero(Cs)]
+    Cmin = np.min(Csz)
+    
     Dmin = np.min(PQT[np.nonzero(PQT)])
     
     cons_delta = min(Cmin, Dmin) / 2
