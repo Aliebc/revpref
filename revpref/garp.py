@@ -1,9 +1,9 @@
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __author__ = 'Yi Xiang'
 
 import networkx as nx
 import numpy as np
-from typing import List, Tuple, Literal
+from typing import Literal
 from matplotlib import pyplot as plt
 
 from ._utils import generate_graph
