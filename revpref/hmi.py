@@ -30,7 +30,8 @@ def _mtz_hmi(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
     PQT = p @ q.T
     
     EXP = np.diag(PQT).reshape(T, 1) @ np.ones((1, T))
-    Cs = np.clip(PQT - EXP, 0, None)
+    
+    Cs = np.clip(PQT - EXP, 1e-7, None)
     Cmin = np.min(Cs[np.nonzero(Cs)])
     Dmin = np.min(PQT[np.nonzero(PQT)])
     

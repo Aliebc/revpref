@@ -71,7 +71,7 @@ def _optimize_mci(p:np.ndarray, q:np.ndarray):
             raise RuntimeError("MILP Failed!")
     pass
 
-def _mtz_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
+def _mtz_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD', err = False):
     sl = pl.getSolver(solver, msg = 0)
     edges = list(_generate_graph(p, q).edges())
     T = q.shape[0]
@@ -133,8 +133,14 @@ def _mtz_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
     
     prob += pl.lpDot(vB2, vw)
     prob.solve(solver = sl)
-    e = pl.value(prob.objective) / sum_cost
     
+    if pl.LpStatus[prob.status] != "Optimal":
+        if err:
+            raise RuntimeError("Optimization Failed")
+        else:
+            return -1
+
+    e = pl.value(prob.objective) / sum_cost
     return e
     
 def _milp_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD'):
