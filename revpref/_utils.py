@@ -1,6 +1,7 @@
 import networkx as nx
 import pulp as pl
 import numpy as np
+import warnings
 
 def simple_cycles(G: nx.Graph, max_depth = 0):
     r'''
@@ -62,3 +63,12 @@ def has_cycle(G):
         return True
     except:
         return False
+    
+def _dep_warning(kdict):
+    if('lp_solver' in kdict):
+        warnings.warn(
+            "lp_solver is deprecated, use revpref.RevealedPreference(..., lp_solver = ...) instead",
+            DeprecationWarning
+        )
+    
+    

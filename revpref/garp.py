@@ -1,18 +1,23 @@
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __author__ = 'Yi Xiang'
 
 import networkx as nx
 import numpy as np
 from typing import Literal
 from matplotlib import pyplot as plt
+import warnings
 
-from ._utils import generate_graph
+from ._utils import (
+    generate_graph,
+    _dep_warning
+)
 
 from .ccei import _warshall_ccei, _bisection_ccei, _mtz_ccei
 from .mpi import _cycle_mpi, _matrix_mpi
 from .mci import _mtz_mci, _optimize_mci, _milp_mci
 from .hmi import _mtz_hmi, _gross_hmi, _optimize_hmi
 from .avi import _mtz_avi
+from .me import _mtz_aee, _mtz_ape
 
 def _generate_graph(p, q, e = 1):
     return generate_graph(p, q, e)
@@ -38,8 +43,15 @@ class RevealedPreference:
     q = np.array([])
     e = 1
     G : nx.DiGraph = None
+    lp_solver = 'PULP_CBC_CMD'
     
-    def __init__(self, p, q, efficiency = 1):
+    def __init__(
+        self, p, q, efficiency = 1,
+        lp_solver : Literal[
+            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
+            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
+        ] = 'PULP_CBC_CMD'
+    ):
         self.p = np.array(p, dtype=np.float64)
         self.q = np.array(q, dtype=np.float64)
         self.e = efficiency
@@ -47,9 +59,16 @@ class RevealedPreference:
             raise ValueError("shape of p and q should be the same")
         if len(self.p.shape) != 2:
             raise ValueError("p and q should be 2-dim arrays")
-        self.G = _generate_graph(self.p, self.q, efficiency)
+        if lp_solver not in [
+            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
+            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
+        ]:
+            raise ValueError("lp_solver should be one of GUROBI_CMD, PULP_CBC_CMD, COIN_CMD, CPLEX_CMD, GLPK_CMD, XPRESS, CPLEX_PY")
+        self.lp_solver = lp_solver
+        #self.G = _generate_graph(self.p, self.q, efficiency)
     
     def check_garp(self):
+        self.graph()
         st = True
         for i in nx.simple_cycles(self.G):
             if len(i) > 1:
@@ -59,12 +78,8 @@ class RevealedPreference:
     
     def ccei(self, 
         method : Literal['warshall', 'dichotomy', 'milp'] = 'warshall',
-        tol : float = 1e-7,
-        lp_solver : Literal[
-            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
-            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
-        ] = 'PULP_CBC_CMD',
-        jit : bool = False
+        tol : float = 1e-7, 
+        **kwargs
     ):
         '''
         CCEI (Critical Cost Efficiency Index)
@@ -75,25 +90,32 @@ class RevealedPreference:
         2. Bisection
         3. MTZ
         '''
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
         match method:
             case 'warshall':
                 return _warshall_ccei(self.p, self.q)
             case 'bisection':
                 return _bisection_ccei(self.p, self.q, tol)
             case 'mtz':
-                return _mtz_ccei(self.p, self.q, lp_solver)
+                return _mtz_ccei(self.p, self.q, lps)
         raise ValueError("method should be 'warshall' or 'bisection' or 'mtz'")
     
     def avi(self, 
         method : Literal['mtz'] = 'mtz',
-        lp_solver : Literal[
-            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
-            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
-        ] = 'PULP_CBC_CMD'
+        **kwargs
     ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
         match method:
             case 'mtz':
-                return _mtz_avi(self.p, self.q, lp_solver)
+                return _mtz_avi(self.p, self.q, lps)
         raise ValueError('x') 
     
     def violations(self):
@@ -114,39 +136,71 @@ class RevealedPreference:
         raise ValueError("method should be 'cycle' or 'matrix'")
     
     def mci(self, 
-        method : Literal['optimize', 'milp', 'mtz'] = 'optimize',
-        lp_solver : Literal[
-            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
-            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
-        ] = 'PULP_CBC_CMD'
+        method : Literal['optimize', 'milp', 'mtz'] = 'mtz',
+        **kwargs
     ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
         match method:
             case 'milp':
                 return _milp_mci(self.p, self.q)
             case 'mtz':
-                return _mtz_mci(self.p, self.q)
+                return _mtz_mci(self.p, self.q, lps)
             case 'optimize':
                 return _optimize_mci(self.p, self.q)
         raise ValueError("method should be 'optimize', 'milp' or 'mtz'")
     
     def hmi(self,
         method : Literal['mtz', 'gross', 'optimize'] = 'mtz',
-        lp_solver : Literal[
-            'GUROBI_CMD', 'PULP_CBC_CMD', 'COIN_CMD',
-            'CPLEX_CMD', 'GLPK_CMD', 'XPRESS', 'CPLEX_PY'
-        ] = 'PULP_CBC_CMD'
+        **kwargs
     ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
         match method:
             case 'mtz':
-                return _mtz_hmi(self.p, self.q, lp_solver)
+                return _mtz_hmi(self.p, self.q, lps)
             case 'gross':
                 return _gross_hmi(self.p, self.q)
             case 'optimize':
                 return _optimize_hmi(self.p, self.q)
         raise ValueError("method should be 'mtz' or 'gross' or 'optimize'")
     
+    def aee(self,
+        method : Literal['mtz'] = 'mtz',
+        **kwargs
+    ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
+        match method:
+            case 'mtz':
+                return _mtz_aee(self.p, self.q, lps)
+        raise ValueError("method should be 'mtz'")
+    
+    def ape(self,
+        method : Literal['mtz'] = 'mtz',
+        **kwargs
+    ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
+        match method:
+            case 'mtz':
+                return _mtz_ape(self.p, self.q, lps)
+        raise ValueError("method should be 'mtz'")
+    
     def draw(self):
-        G = self.G
+        G = self.graph()
         plt.rcParams['font.sans-serif'] = ['Times New Roman']
         p = plt.figure(figsize=(8, 8))
         nx.draw_networkx_nodes(
@@ -171,4 +225,18 @@ class RevealedPreference:
         return self
         
     def graph(self):
+        if self.G == None:
+            self.G = _generate_graph(self.p, self.q, self.e)
         return self.G
+    
+    def update(self, **kwargs):
+        if 'p' in kwargs:
+            self.p = np.array(kwargs['p'])
+        if 'q' in kwargs:
+            self.q = np.array(kwargs['q'])
+        if 'e' in kwargs:
+            self.e = kwargs['e']
+        if 'lp_solver' in kwargs:
+            self.lp_solver = kwargs['lp_solver']
+        #self.G = _generate_graph(self.p, self.q, self.e)
+        return self

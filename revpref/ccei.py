@@ -52,7 +52,7 @@ def _bisection_ccei(p: np.ndarray, q: np.ndarray, tol = 1e-6):
     f = lambda iccei, p, q: _has_cycle(_generate_graph(p, q, iccei))
     l, r = 0, 1
     while r - l > tol:
-        mid = (l + r) / 2
+        mid = l + (r - l) / 2
         if f(mid, p, q):
             r = mid
         else:

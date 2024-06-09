@@ -39,6 +39,13 @@ We implement various method to compute following indices:
 * MCI is defined as the minimum cost of removing all cycles from the graph.
 * We provide two methods to compute MCI. (Optimize, **MTZ**)
 
+### AEE (Average Expenditure Error, *Dean and Martin, 2016*)
+
+* AEE is defined by relaxing the GARP condition: p^tq^t - r^t >= p^tq^v and finding the minimum sum of r^t that satisfies the condition
+* We provide MTZ method to compute AEE.
+
+
+
 ## Installation
 
 You can install our package from [PyPI](https://pypi.org/) using the following command
@@ -96,6 +103,8 @@ q = np.array(
 )
 
 pref = rp.RevealedPreference(p, q) # Construct the class
+# Accelerate if you have Gurobi Optimizer or CPLEX
+# pref = rp.RevealedPreference(p, q, lp_solver = 'GUROBI_CMD')
 print(pref.check_garp()) # Check if satisfy GARP
 
 print("---CCEI---")
@@ -113,12 +122,13 @@ print(pref.mpi(method='matrix'))
 print("---MCI---")
 print(pref.mci())
 print(pref.mci(method='mtz'))
-# Accelerate if you have Gurobi Optimizer or CPLEX
-# print(pref.mci(method='mtz', lp_solver = 'GUROBI_CMD')) 
 
 print("---HMI---")
 print(pref.hmi())
 print(pref.hmi(method='mtz'))
+
+print("---AEE---")
+print(pref.aee())
 ```
 
 Expected output:
@@ -140,6 +150,8 @@ False
 ---HMI---
 0.9
 0.9
+---AEE---
+0.256
 ```
 
 ## References
