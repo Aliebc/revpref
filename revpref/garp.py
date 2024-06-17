@@ -17,7 +17,7 @@ from .mpi import _cycle_mpi, _matrix_mpi
 from .mci import _mtz_mci, _optimize_mci, _milp_mci
 from .hmi import _mtz_hmi, _gross_hmi, _optimize_hmi
 from .avi import _mtz_avi
-from .me import _mtz_aee, _mtz_ape
+from .me import _mtz_aee, _mtz_ape, _mtz_aqe
 
 def _generate_graph(p, q, e = 1):
     return generate_graph(p, q, e)
@@ -199,6 +199,20 @@ class RevealedPreference:
                 return _mtz_ape(self.p, self.q, lps)
         raise ValueError("method should be 'mtz'")
     
+    def aqe(self,
+        method : Literal['mtz'] = 'mtz',
+        **kwargs
+    ):
+        lps = self.lp_solver
+        if kwargs:
+            _dep_warning(kwargs)
+            if 'lp_solver' in kwargs:
+                lps = kwargs['lp_solver']
+        match method:
+            case 'mtz':
+                return _mtz_aqe(self.p, self.q, lps)
+        raise ValueError("method should be 'mtz'")
+    
     def draw(self):
         G = self.graph()
         plt.rcParams['font.sans-serif'] = ['Times New Roman']
@@ -238,5 +252,4 @@ class RevealedPreference:
             self.e = kwargs['e']
         if 'lp_solver' in kwargs:
             self.lp_solver = kwargs['lp_solver']
-        #self.G = _generate_graph(self.p, self.q, self.e)
         return self
