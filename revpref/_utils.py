@@ -71,4 +71,11 @@ def _dep_warning(kdict):
             DeprecationWarning
         )
     
-    
+def find_solver(solver, *args, **kwargs):
+    if solver == 'GUROBI_CMD':
+        if 'options' not in kwargs:
+            kwargs['options'] = []
+        kwargs['options'] += [('OutputFlag', 0), ('LogToConsole', 0), ('LogFile', '')]
+        return pl.GUROBI_CMD(*args, **kwargs)
+    else:
+        return pl.getSolver(solver, *args, **kwargs)

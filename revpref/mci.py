@@ -19,7 +19,8 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 
 from ._utils import (
     generate_graph as _generate_graph, 
-    has_cycle as _has_cycle
+    has_cycle as _has_cycle,
+    find_solver as _find_solver
 )
 
 def _check_if_in_cycle(edge, cycle: list):
@@ -72,7 +73,7 @@ def _optimize_mci(p:np.ndarray, q:np.ndarray):
     pass
 
 def _mtz_mci(p:np.ndarray, q:np.ndarray, solver = 'PULP_CBC_CMD', err = False):
-    sl = pl.getSolver(solver, msg = 0)
+    sl = _find_solver(solver, msg = 0)
     edges = list(_generate_graph(p, q).edges())
     T = q.shape[0]
     PQT = p @ q.T
